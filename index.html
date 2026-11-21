@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mach-Zehnder-Interferometer &amp; Delayed-Choice-Experiment</title>
+  <style>
+    /* ==========================================================================
+       CSS-DESIGN-SYSTEM (Didaktisch klar & modern – Light- und Dark-Mode)
+       ========================================================================== */
+    :root {
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-pill-track: #e2e8f0;
+      --bg-pill-thumb: #ffffff;
+      --border-color: #cbd5e1;
+      --border-light: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --accent-amber: #dc2626;
+      --accent-amber-soft: #fffbeb;
+      --accent-emerald: #059669;
+      --accent-emerald-soft: #ecfdf5;
+      --accent-red: #dc2626;
+      --accent-red-soft: #fef2f2;
+      --danger: #dc2626;
+      --slider-accent: #0f172a;
+      --slider-track: #cbd5e1;
+      --canvas-bg: #ffffff;
+      --canvas-grid: #f1f5f9;
+      --canvas-label-muted: #64748b;
+      --canvas-label-dark: #0f172a;
+      --canvas-label-sub: #475569;
+      --screen-housing: #0f172a;
+      --pf-axis-main: #0f172a;
+      --pf-axis-dim: #94a3b8;
+      --pf-fill-on: rgba(15, 23, 42, 0.10);
+      --pf-fill-off: rgba(148, 163, 184, 0.06);
+      --pf-stroke-on: #334155;
+      --pf-stroke-off: #cbd5e1;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 7px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.07);
+    }
+
+    body[data-theme="dark"] {
+      --bg-page: #090d16;
+      --bg-card: #111827;
+      --bg-subtle: #182234;
+      --bg-pill-track: #1e293b;
+      --bg-pill-thumb: #334155;
+      --border-color: #334155;
+      --border-light: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-light: #64748b;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-soft: rgba(59, 130, 246, 0.16);
+      --accent-amber: #f87171;
+      --accent-amber-soft: rgba(245, 158, 11, 0.14);
+      --accent-emerald: #10b981;
+      --accent-emerald-soft: rgba(16, 185, 129, 0.14);
+      --accent-red: #f87171;
+      --accent-red-soft: rgba(248, 113, 113, 0.14);
+      --danger: #f87171;
+      --slider-accent: #64748b;
+      --slider-track: #111827;
+      --canvas-bg: #0c1220;
+      --canvas-grid: #151f33;
+      --canvas-label-muted: #94a3b8;
+      --canvas-label-dark: #f1f5f9;
+      --canvas-label-sub: #cbd5e1;
+      --screen-housing: #64748b;
+      --pf-axis-main: #f8fafc;
+      --pf-axis-dim: #64748b;
+      --pf-fill-on: rgba(248, 250, 252, 0.12);
+      --pf-fill-off: rgba(148, 163, 184, 0.05);
+      --pf-stroke-on: #cbd5e1;
+      --pf-stroke-off: #475569;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.45;
+      padding: 14px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Kopfbereich */
+    header.app-header {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 14px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .header-title-group h1 {
+      font-size: 1.28rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .header-title-group p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Pill-Shape Buttonslider für Modus */
+    .mode-pill-slider {
+      position: relative;
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg-pill-track);
+      padding: 4px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      user-select: none;
+      min-width: 268px;
+    }
+
+    .mode-pill-thumb {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      background: var(--bg-pill-thumb);
+      border-radius: 999px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.14);
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease;
+      pointer-events: none;
+    }
+
+    .mode-pill-slider[data-mode="polfilter"] .mode-pill-thumb {
+      transform: translateX(100%);
+    }
+
+    .mode-pill-btn {
+      position: relative;
+      z-index: 1;
+      appearance: none;
+      border: none;
+      background: transparent;
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .mode-pill-btn[aria-pressed="true"] {
+      color: var(--text-main);
+    }
+
+    /* Toggle-Switch für Light- / Dark-Mode ganz oben rechts */
+    .theme-switch-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .theme-switch-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    button.theme-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-pill-track);
+      cursor: pointer;
+      padding: 0;
+      transition: background-color 0.22s ease, border-color 0.22s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    button.theme-switch:hover {
+      border-color: #94a3b8;
+    }
+
+    button.theme-switch .theme-switch-knob {
+      position: absolute;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-pill-thumb);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+    }
+
+    button.theme-switch[aria-checked="true"] .theme-switch-knob {
+      transform: translateX(24px);
+    }
+
+    /* Haupt-Grid: Links Aufbau + Parameter, Rechts Schirm(e) + Statistik */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 1120px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card-header {
+      padding: 11px 16px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      padding: 14px 16px;
+    }
+
+    /* Interferometer-Canvas Container */
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      background: var(--canvas-bg);
+      border-bottom: 1px solid var(--border-light);
+      transition: background-color 0.2s ease;
+    }
+
+    canvas#interferometerCanvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
+      cursor: pointer;
+    }
+
+    /* Auffällige Felder mittig unten im Aufbau für BS2 und Delayed-Choice */
+    .canvas-bs2-bar {
+      position: absolute;
+      bottom: 12px;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .canvas-bs2-bar > * {
+      pointer-events: auto;
+    }
+
+    .canvas-bs2-slot {
+      display: inline-flex;
+      align-items: center;
+      max-width: 190px;
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      overflow: hidden;
+      margin-right: 8px;
+      transition:
+        max-width 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.22s ease,
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        margin-right 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .canvas-bs2-bar.is-polfilter .canvas-bs2-slot {
+      max-width: 0;
+      opacity: 0;
+      transform: translateX(-12px) scale(0.94);
+      margin-right: 0;
+      pointer-events: none;
+    }
+
+    .canvas-bs2-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+    }
+
+    .canvas-bs2-chip:hover {
+      background: var(--bg-subtle);
+      border-color: var(--primary);
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.2);
+    }
+
+    .canvas-bs2-chip .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      transition: background-color 0.15s ease;
+    }
+
+    .canvas-bs2-chip.is-out .chip-dot {
+      background: var(--accent-amber);
+    }
+
+    .canvas-dc-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: var(--radius-sm);
+      padding: 6px 13px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+      cursor: pointer;
+      white-space: nowrap;
+      transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+      user-select: none;
+    }
+
+    .canvas-dc-chip.is-active {
+      background: var(--accent-emerald-soft);
+      border: 1.5px solid var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .canvas-dc-chip.is-active:hover {
+      filter: brightness(0.97);
+    }
+
+    .canvas-dc-chip.is-active .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+    }
+
+    .canvas-dc-chip.is-inactive {
+      background: var(--accent-red-soft);
+      border: 1.5px solid var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    .canvas-dc-chip.is-inactive:hover {
+      filter: brightness(0.97);
+    }
+
+    .canvas-dc-chip.is-inactive .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+    }
+
+    /* Steuerungs-Toolbar direkt unter dem Aufbau */
+    .controls-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Schlichteres, eleganteres Button-Design */
+    button.btn {
+      appearance: none;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+      box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
+    }
+
+    button.btn:hover {
+      background: var(--bg-subtle);
+      border-color: #94a3b8;
+    }
+
+    button.btn:active {
+      background: var(--bg-pill-track);
+    }
+
+    button.btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    button.btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    button.btn-subtle-active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .btn-state-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      transition: background-color 0.15s ease;
+    }
+
+    button.btn-speed-on .btn-state-dot {
+      background: var(--accent-emerald);
+    }
+
+    button.btn-speed-off .btn-state-dot {
+      background: var(--accent-red);
+    }
+
+    button.btn-ghost-danger {
+      color: var(--text-muted);
+      border-color: var(--border-light);
+      background: var(--bg-subtle);
+    }
+
+    button.btn-ghost-danger:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: var(--accent-red-soft);
+    }
+
+    /* Parameter-Slider */
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .slider-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.83rem;
+      gap: 8px;
+    }
+
+    .slider-header label {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .slider-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      accent-color: var(--slider-accent);
+      cursor: pointer;
+      height: 16px;
+      background: transparent;
+      display: block;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--slider-track);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--slider-accent);
+      border: 2px solid var(--bg-card);
+      margin-top: -4.5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--slider-track);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--slider-accent);
+      border: 2px solid var(--bg-card);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+    }
+
+    input[type="range"]:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .wavelength-bar {
+      height: 5px;
+      border-radius: 3px;
+      margin-top: 5px;
+      background: linear-gradient(
+        to right,
+        #6b00ff 0%,
+        #0044ff 18%,
+        #00d4ff 32%,
+        #00e640 48%,
+        #ffe600 62%,
+        #ff6600 76%,
+        #e60000 100%
+      );
+      transition: filter 0.2s ease, opacity 0.2s ease;
+    }
+
+    body[data-theme="dark"] .wavelength-bar {
+      filter: brightness(0.68) saturate(0.88);
+    }
+
+    /* Polfilter-Steuerung im Polfilter-Modus (untereinander, neutral/farblos) */
+    .polfilter-panel {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    .polfilter-panel.is-visible {
+      display: flex;
+    }
+
+    .polfilter-panel-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .polfilter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .polfilter-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: opacity 0.15s ease, border-color 0.15s ease, background-color 0.2s ease;
+    }
+
+    .polfilter-card.is-disabled {
+      opacity: 0.65;
+      background: var(--bg-subtle);
+    }
+
+    body[data-theme="dark"] .polfilter-card {
+      background: #0d1322;
+    }
+
+    body[data-theme="dark"] .polfilter-card.is-disabled {
+      background: #090d16;
+    }
+
+    .polfilter-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .polfilter-enable-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .polfilter-enable-label input[type="checkbox"] {
+      accent-color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .polfilter-angle-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      padding: 1px 7px;
+      border-radius: 5px;
+    }
+
+    .polfilter-card input[type="range"] {
+      accent-color: var(--text-muted);
+    }
+
+    /* Rechte Spalte: Schirm(e) Großansicht */
+    .screens-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .screens-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .screens-pair.single-screen {
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+
+    .screens-pair.single-screen .screen-box {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .screens-pair.single-screen canvas.detector-screen {
+      max-width: 320px;
+    }
+
+    .screen-box.is-hidden {
+      display: none;
+    }
+
+    @media (max-width: 540px) {
+      .screens-pair {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .screen-box {
+      background: #090d16;
+      border-radius: var(--radius-md);
+      padding: 10px;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #1e293b;
+    }
+
+    .screen-box-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    .screen-box-title {
+      font-weight: 700;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .screen-count-badge {
+      flex: 1;
+      text-align: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #1e293b;
+      color: #93c5fd;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    canvas.detector-screen {
+      width: 100%;
+      max-width: 240px;
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #030712;
+      display: block;
+    }
+
+    /* Statistik-Leiste */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .stats-grid.is-hidden {
+      display: none;
+    }
+
+    .stat-tile {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-tile .stat-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-tile .stat-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      margin-top: 2px;
+    }
+
+    /* Aktionen unter den Schirmbildern */
+    .screen-footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    /* Checkbox-Toggle Styling */
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.81rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- KOPFZEILE -->
+    <header class="app-header">
+      <div class="header-title-group">
+        <h1>Mach-Zehnder-Interferometer &amp; Delayed-Choice-Experiment</h1>
+        <p id="headerSubtitle">Quantenoptische Einzelphotonen-Simulation mit schrittweisem Aufbau des Interferenzbildes</p>
+      </div>
+
+      <div class="header-controls">
+        <div class="mode-pill-slider" id="modePillSlider" data-mode="standard" role="group" aria-label="Simulationsmodus">
+          <div class="mode-pill-thumb" aria-hidden="true"></div>
+          <button type="button" class="mode-pill-btn" id="btnModeStandard" aria-pressed="true">ohne Polfilter</button>
+          <button type="button" class="mode-pill-btn" id="btnModePolfilter" aria-pressed="false">mit Polfilter</button>
+        </div>
+
+        <div class="theme-switch-wrap">
+          <span class="theme-switch-label" id="themeSwitchLabel">Dark</span>
+          <button
+            type="button"
+            class="theme-switch"
+            id="btnThemeSwitch"
+            role="switch"
+            aria-checked="true"
+            aria-label="Dark-Mode umschalten"
+            title="Zwischen Light- und Dark-Mode wechseln"
+          >
+            <span class="theme-switch-knob">
+              <svg id="themeIconSun" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="display:none;">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"></path>
+              </svg>
+              <svg id="themeIconMoon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HAUPTBEREICH -->
+    <div class="main-grid">
+      <!-- LINKE SPALTE: OPTISCHER AUFBAU & STEUERUNG -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M3 12h6m6 0h6M12 3v6m0 6v6"></path>
+            </svg>
+            <span>Experimenteller Aufbau (Draufsicht)</span>
+          </div>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="interferometerCanvas" width="800" height="500"></canvas>
+          <div class="canvas-bs2-bar" id="canvasBs2Bar">
+            <div class="canvas-bs2-slot" id="bs2ChipSlot">
+              <button type="button" id="btnToggleBs2Chip" class="canvas-bs2-chip" title="BS2 ein- oder ausbauen">
+                <span class="chip-dot"></span>
+                <span id="bs2ChipLabel">BS2 eingebaut</span>
+              </button>
+            </div>
+            <button type="button" id="btnToggleDelayedChoiceChip" class="canvas-dc-chip is-inactive" title="Delayed-Choice ein- oder ausschalten">
+              <span class="chip-dot"></span>
+              <span id="dcChipLabel">Delayed-Choice: Aus</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body controls-section">
+          <!-- PHOTONEN-EMISSION & STEUERUNG -->
+          <div class="button-row">
+            <button type="button" id="btnSinglePhoton" class="btn btn-primary" title="Sendet genau ein einzelnes Photon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
+              1 Photon senden
+            </button>
+
+            <button type="button" id="btnContinuous" class="btn" title="Kontinuierlicher Einzelphotonen-Strom">
+              <span id="iconContinuous">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+              </span>
+              <span id="btnContinuousLabel">Dauerbetrieb</span>
+            </button>
+
+            <button type="button" id="btnSpeedToggle" class="btn btn-speed-off" title="Schaltet auf erhöhte Simulationsgeschwindigkeit">
+              <span class="btn-state-dot"></span>
+              <span id="btnSpeedLabel">Schnelllauf: Aus</span>
+            </button>
+          </div>
+
+          <!-- POLFILTER-KONFIGURATION (NUR IM POLFILTER-MODUS SICHTBAR) -->
+          <div class="polfilter-panel" id="polfilterPanel">
+            <div class="polfilter-panel-title">
+              <span>Polarisationsfilter P1, P2 &amp; P3 (0°–180°)</span>
+            </div>
+
+            <div class="polfilter-list">
+              <!-- POLFILTER P1 IN ARM 1 -->
+              <div class="polfilter-card is-disabled" id="pfCardArm1">
+                <div class="polfilter-top">
+                  <label class="polfilter-enable-label">
+                    <input type="checkbox" id="chkPfArm1" />
+                    <span>P1 (Arm 1)</span>
+                  </label>
+                  <span class="polfilter-angle-badge" id="valPfAngleArm1">0°</span>
+                </div>
+                <input type="range" id="sliderPfAngleArm1" min="0" max="180" step="1" value="0" disabled />
+              </div>
+
+              <!-- POLFILTER P2 IN ARM 2 -->
+              <div class="polfilter-card is-disabled" id="pfCardArm2">
+                <div class="polfilter-top">
+                  <label class="polfilter-enable-label">
+                    <input type="checkbox" id="chkPfArm2" />
+                    <span>P2 (Arm 2)</span>
+                  </label>
+                  <span class="polfilter-angle-badge" id="valPfAngleArm2">0°</span>
+                </div>
+                <input type="range" id="sliderPfAngleArm2" min="0" max="180" step="1" value="0" disabled />
+              </div>
+
+              <!-- POLFILTER P3 ZWISCHEN BS2 UND SCHIRM 1 -->
+              <div class="polfilter-card is-disabled" id="pfCardOut1">
+                <div class="polfilter-top">
+                  <label class="polfilter-enable-label">
+                    <input type="checkbox" id="chkPfOut1" />
+                    <span>P3 (BS2 → Schirm 1)</span>
+                  </label>
+                  <span class="polfilter-angle-badge" id="valPfAngleOut1">0°</span>
+                </div>
+                <input type="range" id="sliderPfAngleOut1" min="0" max="180" step="1" value="0" disabled />
+              </div>
+            </div>
+          </div>
+
+          <!-- PARAMETER-SLIDER (Wellenlänge) -->
+          <div class="sliders-grid">
+            <div class="slider-card">
+              <div class="slider-header">
+                <label for="sliderWavelength">Wellenlänge &lambda; (Laserfarbe)</label>
+                <span class="slider-value" id="valWavelength">532 nm</span>
+              </div>
+              <input type="range" id="sliderWavelength" min="380" max="750" step="1" value="532" />
+              <div class="wavelength-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECHTE SPALTE: DETEKTORSCHIRME 1 & 2 (WIE MINTAPPS) -->
+      <div class="screens-column">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+                <circle cx="12" cy="12" r="5"></circle>
+              </svg>
+              <span id="screensCardTitle">Beobachtungsschirme (Einzelphotonen-Treffer)</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="screens-pair" id="screensPair">
+              <!-- SCHIRM 1 (RECHTS) -->
+              <div class="screen-box" id="screen1Box">
+                <div class="screen-box-header">
+                  <span class="screen-box-title">Schirm 1</span>
+                  <span class="screen-count-badge" id="badgeCount1">0 Treffer</span>
+                </div>
+                <canvas id="screen1Canvas" class="detector-screen" width="260" height="260"></canvas>
+              </div>
+
+              <!-- SCHIRM 2 (OBEN, NUR IM MODUS "OHNE POLFILTER") -->
+              <div class="screen-box" id="screen2Box">
+                <div class="screen-box-header">
+                  <span class="screen-box-title">Schirm 2</span>
+                  <span class="screen-count-badge" id="badgeCount2">0 Treffer</span>
+                </div>
+                <canvas id="screen2Canvas" class="detector-screen" width="260" height="260"></canvas>
+              </div>
+            </div>
+
+            <!-- STATISTIK-KACHELN (NUR IM MODUS "OHNE POLFILTER") -->
+            <div class="stats-grid" id="statsGrid">
+              <div class="stat-tile">
+                <div class="stat-label">Detektierte Photonen</div>
+                <div class="stat-val" id="statTotal">0</div>
+              </div>
+              <div class="stat-tile" id="statTile1">
+                <div class="stat-label">Anteil Schirm 1</div>
+                <div class="stat-val" id="statRatio1">0.0 %</div>
+              </div>
+              <div class="stat-tile" id="statTile2">
+                <div class="stat-label">Anteil Schirm 2</div>
+                <div class="stat-val" id="statRatio2">0.0 %</div>
+              </div>
+            </div>
+
+            <!-- ZUSATZOPTION FÜR SCHIRMDARSTELLUNG & ZURÜCKSETZEN UNTER DEN SCHIRMBILDERN -->
+            <div class="screen-footer-actions">
+              <label class="checkbox-label">
+                <input type="checkbox" id="chkTheoryOverlay" />
+                <span>Theoretische Verteilung</span>
+              </label>
+
+              <button type="button" id="btnResetScreens" class="btn btn-ghost-danger">
+                Zurücksetzen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * MACH-ZEHNDER-INTERFEROMETER & DELAYED-CHOICE SIMULATION (SINGLE-FILE JS)
+     * ============================================================================
+     */
+
+    (function () {
+      "use strict";
+
+      // ------------------------------------------------------------------------
+      // 1. ZUSTANDSVARIABLEN DER SIMULATION
+      // ------------------------------------------------------------------------
+      const state = {
+        theme: "dark",                   // "dark" (Standard) | "light"
+        appMode: "standard",             // "standard" ("Ohne Polfilter") | "polfilter" ("Mit Polfilter")
+        bs2Installed: true,              // Aktueller physischer Zustand von BS2 im Aufbau
+        bs2TargetInstalled: true,        // Gewählter Zielzustand ("BS2 eingebaut" vs. "BS2 entfernt")
+        delayedChoiceEnabled: false,     // Delayed-Choice-Modus ein/aus
+        bs2VisualProgress: 1.0,          // 1.0 = komplett eingebaut, 0.0 = komplett ausgefahren
+        wavelength: 532,                 // in nm (380 - 750 nm)
+        patternMode: "rings",            // Konzentrische Interferenzringe
+        showTheoryOverlay: false,        // Theoretische Intensität auf den Schirmen einblenden
+        continuous: false,               // Kontinuierlicher Photonenstrom aktiv
+        fastMode: false,                 // Schnelllauf im Dauerbetrieb
+        polfilters: {
+          arm1: { enabled: false, angleDeg: 0 },
+          arm2: { enabled: false, angleDeg: 0 },
+          out1: { enabled: false, angleDeg: 0 }
+        },
+        photons: [],                     // Aktive fliegende Photonen im Aufbau
+        screenFlashes: [],               // Kurzzeitige Aufleuchtpunkte direkt auf den Detektorschirmen & in der Draufsicht
+        count1: 0,                       // Gesamtzahl Treffer Schirm 1
+        count2: 0,                       // Gesamtzahl Treffer Schirm 2
+        spawnTimer: 0,                   // Zeitakkumulator für kontinuierliche Emission
+        lastTimestamp: 0
+      };
+
+      // ------------------------------------------------------------------------
+      // 2. DOM-ELEMENTE & CANVAS-KONTEXTE
+      // ------------------------------------------------------------------------
+      const setupCanvas = document.getElementById("interferometerCanvas");
+      const setupCtx = setupCanvas.getContext("2d");
+
+      const screen1Canvas = document.getElementById("screen1Canvas");
+      const screen1Ctx = screen1Canvas.getContext("2d");
+
+      const screen2Canvas = document.getElementById("screen2Canvas");
+      const screen2Ctx = screen2Canvas.getContext("2d");
+
+      // Offscreen-Canvases für persistente Photonen-Einschläge auf Schirm 1 & 2
+      const accCanvas1 = document.createElement("canvas");
+      accCanvas1.width = screen1Canvas.width;
+      accCanvas1.height = screen1Canvas.height;
+      const accCtx1 = accCanvas1.getContext("2d");
+
+      const accCanvas2 = document.createElement("canvas");
+      accCanvas2.width = screen2Canvas.width;
+      accCanvas2.height = screen2Canvas.height;
+      const accCtx2 = accCanvas2.getContext("2d");
+
+      // UI-Referenzen
+      const headerSubtitle = document.getElementById("headerSubtitle");
+      const modePillSlider = document.getElementById("modePillSlider");
+      const btnModeStandard = document.getElementById("btnModeStandard");
+      const btnModePolfilter = document.getElementById("btnModePolfilter");
+
+      const btnThemeSwitch = document.getElementById("btnThemeSwitch");
+      const themeSwitchLabel = document.getElementById("themeSwitchLabel");
+      const themeIconSun = document.getElementById("themeIconSun");
+      const themeIconMoon = document.getElementById("themeIconMoon");
+
+      const polfilterPanel = document.getElementById("polfilterPanel");
+      const pfControls = {
+        arm1: {
+          card: document.getElementById("pfCardArm1"),
+          chk: document.getElementById("chkPfArm1"),
+          slider: document.getElementById("sliderPfAngleArm1"),
+          badge: document.getElementById("valPfAngleArm1")
+        },
+        arm2: {
+          card: document.getElementById("pfCardArm2"),
+          chk: document.getElementById("chkPfArm2"),
+          slider: document.getElementById("sliderPfAngleArm2"),
+          badge: document.getElementById("valPfAngleArm2")
+        },
+        out1: {
+          card: document.getElementById("pfCardOut1"),
+          chk: document.getElementById("chkPfOut1"),
+          slider: document.getElementById("sliderPfAngleOut1"),
+          badge: document.getElementById("valPfAngleOut1")
+        }
+      };
+
+      const screensCardTitle = document.getElementById("screensCardTitle");
+      const screensPair = document.getElementById("screensPair");
+      const screen2Box = document.getElementById("screen2Box");
+      const statsGrid = document.getElementById("statsGrid");
+
+      const canvasBs2Bar = document.getElementById("canvasBs2Bar");
+      const btnToggleBs2Chip = document.getElementById("btnToggleBs2Chip");
+      const bs2ChipLabel = document.getElementById("bs2ChipLabel");
+      const btnToggleDelayedChoiceChip = document.getElementById("btnToggleDelayedChoiceChip");
+      const dcChipLabel = document.getElementById("dcChipLabel");
+
+      const btnSinglePhoton = document.getElementById("btnSinglePhoton");
+      const btnContinuous = document.getElementById("btnContinuous");
+      const iconContinuous = document.getElementById("iconContinuous");
+      const btnContinuousLabel = document.getElementById("btnContinuousLabel");
+      const btnSpeedToggle = document.getElementById("btnSpeedToggle");
+      const btnSpeedLabel = document.getElementById("btnSpeedLabel");
+      const btnResetScreens = document.getElementById("btnResetScreens");
+
+      const sliderWavelength = document.getElementById("sliderWavelength");
+      const valWavelength = document.getElementById("valWavelength");
+
+      const chkTheoryOverlay = document.getElementById("chkTheoryOverlay");
+
+      const badgeCount1 = document.getElementById("badgeCount1");
+      const badgeCount2 = document.getElementById("badgeCount2");
+      const statTotal = document.getElementById("statTotal");
+      const statRatio1 = document.getElementById("statRatio1");
+      const statRatio2 = document.getElementById("statRatio2");
+
+      const PLAY_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>';
+      const PAUSE_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+
+      // ------------------------------------------------------------------------
+      // 3. OPTISCHE GEOMETRIE IM AUFBAU-CANVAS (800 x 500 Koordinatenraum)
+      // ------------------------------------------------------------------------
+      const GEOM = {
+        laser: { x: 92, y: 375 },
+        bs1:   { x: 245, y: 375 },   // Strahlteiler 1 (unten links)
+        m1:    { x: 245, y: 145 },   // Spiegel 1 (oben links)
+        m2:    { x: 545, y: 375 },   // Spiegel 2 (unten rechts)
+        bs2:   { x: 545, y: 145 },   // Strahlteiler 2 / Kreuzungspunkt (oben rechts)
+        scr1:  { x: 730, y: 145 },   // Schirm 1 (rechts von BS2)
+        scr2:  { x: 545, y: 38 },    // Schirm 2 (oberhalb von BS2)
+        pfArm1: { x: 395, y: 145, rayAngle: 0, label: "P1" },
+        pfArm2: { x: 395, y: 375, rayAngle: 0, label: "P2" },
+        pfOut1: { x: 638, y: 145, rayAngle: 0, label: "P3" }
+      };
+
+      function getCssVar(name) {
+        return getComputedStyle(document.body).getPropertyValue(name).trim();
+      }
+
+      // ------------------------------------------------------------------------
+      // 4. FARBBERECHNUNG AUS WELLENLÄNGE (380 nm - 750 nm -> RGB)
+      // ------------------------------------------------------------------------
+      function wavelengthToRGB(wl) {
+        let r = 0, g = 0, b = 0;
+        if (wl >= 380 && wl < 440) {
+          r = -(wl - 440) / (440 - 380);
+          g = 0.0;
+          b = 1.0;
+        } else if (wl >= 440 && wl < 490) {
+          r = 0.0;
+          g = (wl - 440) / (490 - 440);
+          b = 1.0;
+        } else if (wl >= 490 && wl < 510) {
+          r = 0.0;
+          g = 1.0;
+          b = -(wl - 510) / (510 - 490);
+        } else if (wl >= 510 && wl < 580) {
+          r = (wl - 510) / (580 - 510);
+          g = 1.0;
+          b = 0.0;
+        } else if (wl >= 580 && wl < 645) {
+          r = 1.0;
+          g = -(wl - 645) / (645 - 580);
+          b = 0.0;
+        } else if (wl >= 645 && wl <= 750) {
+          r = 1.0;
+          g = 0.0;
+          b = 0.0;
+        }
+
+        let factor = 1.0;
+        if (wl >= 380 && wl < 420) {
+          factor = 0.35 + (0.65 * (wl - 380)) / (420 - 380);
+        } else if (wl > 700 && wl <= 750) {
+          factor = 0.35 + (0.65 * (750 - wl)) / (750 - 700);
+        }
+
+        const gamma = 0.82;
+        const R = Math.round(255 * Math.pow(r * factor, gamma));
+        const G = Math.round(255 * Math.pow(g * factor, gamma));
+        const B = Math.round(255 * Math.pow(b * factor, gamma));
+        return { r: R, g: G, b: B, css: `rgb(${R}, ${G}, ${B})` };
+      }
+
+      // ------------------------------------------------------------------------
+      // 5. QUANTENMECHANISCHES WAHRSCHEINLICHKEITSMODELL (STANDARD & POLFILTER)
+      // ------------------------------------------------------------------------
+      function degToRad(deg) {
+        return (deg * Math.PI) / 180;
+      }
+
+      function getPolfilterProbabilities(u, v) {
+        const r2 = u * u + v * v;
+        const sigma2 = 0.21;
+        const gauss = Math.exp(-r2 / (2 * sigma2));
+
+        const wlScale = 532 / state.wavelength;
+        const spatialPhase = 15.5 * wlScale * r2;
+        const fringeMod = Math.cos(spatialPhase);
+
+        const pf1 = state.polfilters.arm1;
+        const pf2 = state.polfilters.arm2;
+        const pf3 = state.polfilters.out1;
+
+        const theta1 = degToRad(pf1.angleDeg);
+        const theta2 = degToRad(pf2.angleDeg);
+        const theta3 = degToRad(pf3.angleDeg);
+
+        if (!pf3.enabled) {
+          if (!state.bs2Installed) {
+            const iNoBs2 = pf1.enabled ? 0.5 : 1.0;
+            return { p1: gauss * iNoBs2, p2: 0, gauss };
+          }
+
+          const a1 = pf1.enabled ? Math.SQRT1_2 : 1.0;
+          const a2 = pf2.enabled ? Math.SQRT1_2 : 1.0;
+          const w1 = pf1.enabled ? 0.5 : 1.0;
+          const w2 = pf2.enabled ? 0.5 : 1.0;
+
+          let visibility = 0;
+          if (!pf1.enabled && !pf2.enabled) {
+            visibility = 1.0;
+          } else if (pf1.enabled && pf2.enabled) {
+            const cosDiff = Math.cos(theta1 - theta2);
+            visibility = cosDiff * cosDiff;
+          } else {
+            visibility = 0.0;
+          }
+
+          const baseInt = 0.5 * (w1 + w2);
+          const interfTerm = 0.5 * a1 * a2 * visibility * fringeMod;
+          const p1 = gauss * Math.max(0, Math.min(1, baseInt + interfTerm));
+          return { p1, p2: 0, gauss };
+        }
+
+        const proj1 = pf1.enabled ? Math.cos(theta3 - theta1) : Math.SQRT1_2;
+        const proj2 = pf2.enabled ? Math.cos(theta3 - theta2) : Math.SQRT1_2;
+
+        if (!state.bs2Installed) {
+          const iSingle = 0.5 * (proj1 * proj1);
+          return { p1: gauss * Math.max(0, Math.min(1, iSingle)), p2: 0, gauss };
+        }
+
+        const amp1 = Math.SQRT1_2 * proj1;
+        const amp2 = Math.SQRT1_2 * proj2;
+
+        const coherent1 = pf1.enabled ? amp1 : 0;
+        const coherent2 = pf2.enabled ? amp2 : 0;
+        const incoherentSum = (!pf1.enabled ? amp1 * amp1 : 0) + (!pf2.enabled ? amp2 * amp2 : 0);
+
+        const re = coherent1 + coherent2 * Math.cos(spatialPhase);
+        const im = coherent2 * Math.sin(spatialPhase);
+        const totalIntensity = re * re + im * im + incoherentSum;
+
+        const p1 = gauss * Math.max(0, Math.min(1, totalIntensity * 0.5));
+        return { p1, p2: 0, gauss };
+      }
+
+      function getScreenProbabilities(u, v) {
+        if (state.appMode === "polfilter") {
+          return getPolfilterProbabilities(u, v);
+        }
+
+        const r2 = u * u + v * v;
+        const sigma2 = 0.21;
+        const gauss = Math.exp(-r2 / (2 * sigma2));
+
+        if (!state.bs2Installed) {
+          return {
+            p1: 0.5 * gauss,
+            p2: 0.5 * gauss,
+            gauss: gauss
+          };
+        }
+
+        const wlScale = 532 / state.wavelength;
+        const spatialPhase = 15.5 * wlScale * r2;
+        const cosHalf = Math.cos(spatialPhase * 0.5);
+        const sinHalf = Math.sin(spatialPhase * 0.5);
+
+        const p1 = gauss * (cosHalf * cosHalf);
+        const p2 = gauss * (sinHalf * sinHalf);
+
+        return { p1, p2, gauss };
+      }
+
+      function sampleSinglePhotonOutcome(forcedArm = null) {
+        if (state.appMode === "polfilter") {
+          for (let attempt = 0; attempt < 250; attempt++) {
+            const u = (Math.random() * 2 - 1) * 0.96;
+            const v = (Math.random() * 2 - 1) * 0.96;
+            const { p1 } = getPolfilterProbabilities(u, v);
+            if (Math.random() < p1) {
+              return { screen: 1, u, v };
+            }
+          }
+          return { screen: 1, u: 0, v: 0 };
+        }
+
+        if (!state.bs2Installed && forcedArm !== null) {
+          const std = 0.325;
+          let u = 0, v = 0;
+          do {
+            const u1 = Math.max(1e-7, Math.random());
+            const u2 = Math.random();
+            const mag = std * Math.sqrt(-2.0 * Math.log(u1));
+            u = mag * Math.cos(2.0 * Math.PI * u2);
+            v = mag * Math.sin(2.0 * Math.PI * u2);
+          } while (Math.abs(u) > 0.96 || Math.abs(v) > 0.96);
+
+          return {
+            screen: forcedArm === 0 ? 1 : 2,
+            u,
+            v
+          };
+        }
+
+        for (let attempt = 0; attempt < 200; attempt++) {
+          const u = (Math.random() * 2 - 1) * 0.96;
+          const v = (Math.random() * 2 - 1) * 0.96;
+          const { p1, p2 } = getScreenProbabilities(u, v);
+
+          const pTotal = p1 + p2;
+          if (Math.random() < pTotal) {
+            const chooseScreen1 = Math.random() < p1 / (pTotal + 1e-12);
+            return {
+              screen: chooseScreen1 ? 1 : 2,
+              u,
+              v
+            };
+          }
+        }
+
+        return { screen: 1, u: 0, v: 0 };
+      }
+
+      // ------------------------------------------------------------------------
+      // 6. REGISTRIERUNG EINES PHOTONEN-TREFFERS & KURZES AUFLEUCHTEN AM SCHIRM
+      // ------------------------------------------------------------------------
+      function recordPhotonHit(outcome, triggerFlash = false) {
+        const rgb = wavelengthToRGB(state.wavelength);
+        const w = accCanvas1.width;
+        const h = accCanvas1.height;
+        const px = (outcome.u * 0.5 + 0.5) * w;
+        const py = (outcome.v * 0.5 + 0.5) * h;
+
+        if (outcome.screen === 1) {
+          state.count1++;
+          drawDotOnAccumulationCanvas(accCtx1, px, py, rgb);
+          if (triggerFlash) {
+            state.screenFlashes.push({
+              screen: 1,
+              u: outcome.u,
+              v: outcome.v,
+              px,
+              py,
+              rgb,
+              life: 1.0
+            });
+          }
+        } else if (state.appMode === "standard") {
+          state.count2++;
+          drawDotOnAccumulationCanvas(accCtx2, px, py, rgb);
+          if (triggerFlash) {
+            state.screenFlashes.push({
+              screen: 2,
+              u: outcome.u,
+              v: outcome.v,
+              px,
+              py,
+              rgb,
+              life: 1.0
+            });
+          }
+        }
+      }
+
+      function drawDotOnAccumulationCanvas(ctx, x, y, rgb) {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+
+        ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.22)`;
+        ctx.beginPath();
+        ctx.arc(x, y, 3.1, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(${Math.min(255, rgb.r + 70)}, ${Math.min(255, rgb.g + 70)}, ${Math.min(255, rgb.b + 70)}, 0.85)`;
+        ctx.beginPath();
+        ctx.arc(x, y, 1.35, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // ------------------------------------------------------------------------
+      // 7. PHOTONEN-EMISSION (EINZELN, DELAYED-CHOICE, BURST / VORSPULEN)
+      // ------------------------------------------------------------------------
+      function spawnFlyingPhoton() {
+        const armChoice = Math.random() < 0.5 ? 0 : 1;
+
+        if (state.delayedChoiceEnabled) {
+          setPhysicalBs2(!state.bs2TargetInstalled);
+        } else {
+          setPhysicalBs2(state.bs2TargetInstalled);
+        }
+
+        state.photons.push({
+          progress: 0.0,
+          armChoice: armChoice,
+          delayedChoice: state.delayedChoiceEnabled,
+          targetInstalled: state.bs2TargetInstalled,
+          delayedSwitched: false
+        });
+      }
+
+      function fastForwardPhotons(count) {
+        for (let i = 0; i < count; i++) {
+          setPhysicalBs2(state.bs2TargetInstalled);
+          const outcome = sampleSinglePhotonOutcome();
+          recordPhotonHit(outcome, false);
+        }
+        updateStatsUI();
+      }
+
+      function setContinuousMode(active) {
+        state.continuous = active;
+        if (active) {
+          btnContinuous.classList.add("btn-subtle-active");
+          iconContinuous.innerHTML = PAUSE_SVG;
+          btnContinuousLabel.textContent = "Pause";
+          spawnFlyingPhoton();
+        } else {
+          btnContinuous.classList.remove("btn-subtle-active");
+          iconContinuous.innerHTML = PLAY_SVG;
+          btnContinuousLabel.textContent = "Dauerbetrieb";
+        }
+      }
+
+      function resetScreens() {
+        state.count1 = 0;
+        state.count2 = 0;
+        state.photons = [];
+        state.screenFlashes = [];
+        accCtx1.clearRect(0, 0, accCanvas1.width, accCanvas1.height);
+        accCtx2.clearRect(0, 0, accCanvas2.width, accCanvas2.height);
+        updateStatsUI();
+      }
+
+      // ------------------------------------------------------------------------
+      // 8. UI-AKTUALISIERUNG, THEME & MODUSWECHSEL
+      // ------------------------------------------------------------------------
+      function setTheme(theme) {
+        if (theme !== "light" && theme !== "dark") return;
+        state.theme = theme;
+        const isDark = theme === "dark";
+        document.body.setAttribute("data-theme", theme);
+        btnThemeSwitch.setAttribute("aria-checked", String(isDark));
+        themeSwitchLabel.textContent = isDark ? "Dark" : "Light";
+        themeIconSun.style.display = isDark ? "none" : "block";
+        themeIconMoon.style.display = isDark ? "block" : "none";
+      }
+
+      function setAppMode(mode) {
+        if (mode !== "standard" && mode !== "polfilter") return;
+        if (state.appMode === mode) return;
+
+        state.appMode = mode;
+        modePillSlider.setAttribute("data-mode", mode);
+
+        const isPol = mode === "polfilter";
+        btnModeStandard.setAttribute("aria-pressed", String(!isPol));
+        btnModePolfilter.setAttribute("aria-pressed", String(isPol));
+
+        canvasBs2Bar.classList.toggle("is-polfilter", isPol);
+        btnToggleBs2Chip.tabIndex = isPol ? -1 : 0;
+        btnToggleBs2Chip.setAttribute("aria-hidden", String(isPol));
+
+        if (isPol) {
+          setBs2TargetState(true);
+        }
+
+        polfilterPanel.classList.toggle("is-visible", isPol);
+        screen2Box.classList.toggle("is-hidden", isPol);
+        screensPair.classList.toggle("single-screen", isPol);
+        statsGrid.classList.toggle("is-hidden", isPol);
+
+        if (isPol) {
+          headerSubtitle.textContent = "Quantenoptische Simulation mit Polarisationsfiltern P1, P2 und P3 (Quantum Eraser)";
+          screensCardTitle.textContent = "Beobachtungsschirm 1 (Einzelphotonen-Treffer)";
+        } else {
+          headerSubtitle.textContent = "Quantenoptische Einzelphotonen-Simulation mit schrittweisem Aufbau des Interferenzbildes";
+          screensCardTitle.textContent = "Beobachtungsschirme (Einzelphotonen-Treffer)";
+        }
+
+        resetScreens();
+      }
+
+      function syncPolfilterUI(key) {
+        const pf = state.polfilters[key];
+        const ctrl = pfControls[key];
+        ctrl.chk.checked = pf.enabled;
+        ctrl.slider.disabled = !pf.enabled;
+        ctrl.slider.value = String(Math.round(pf.angleDeg));
+        ctrl.badge.textContent = `${Math.round(pf.angleDeg)}°`;
+        ctrl.card.classList.toggle("is-disabled", !pf.enabled);
+      }
+
+      function setPhysicalBs2(installed) {
+        state.bs2Installed = installed;
+      }
+
+      function setBs2TargetState(targetInstalled) {
+        state.bs2TargetInstalled = targetInstalled;
+
+        if (targetInstalled) {
+          btnToggleBs2Chip.classList.remove("is-out");
+          bs2ChipLabel.textContent = "BS2 eingebaut";
+        } else {
+          btnToggleBs2Chip.classList.add("is-out");
+          bs2ChipLabel.textContent = "BS2 entfernt";
+        }
+
+        const hasPendingDelayedPhoton = state.photons.some(p => p.delayedChoice && !p.delayedSwitched);
+        if (!hasPendingDelayedPhoton) {
+          setPhysicalBs2(targetInstalled);
+        }
+      }
+
+      function setDelayedChoiceEnabled(enabled) {
+        state.delayedChoiceEnabled = enabled;
+        if (enabled) {
+          btnToggleDelayedChoiceChip.classList.remove("is-inactive");
+          btnToggleDelayedChoiceChip.classList.add("is-active");
+          dcChipLabel.textContent = "Delayed-Choice: Ein";
+        } else {
+          btnToggleDelayedChoiceChip.classList.remove("is-active");
+          btnToggleDelayedChoiceChip.classList.add("is-inactive");
+          dcChipLabel.textContent = "Delayed-Choice: Aus";
+          setPhysicalBs2(state.bs2TargetInstalled);
+        }
+      }
+
+      function setFastMode(enabled) {
+        state.fastMode = enabled;
+        if (enabled) {
+          btnSpeedToggle.classList.remove("btn-speed-off");
+          btnSpeedToggle.classList.add("btn-speed-on");
+          btnSpeedLabel.textContent = "Schnelllauf: Ein";
+          if (!state.continuous) {
+            setContinuousMode(true);
+          }
+        } else {
+          btnSpeedToggle.classList.remove("btn-speed-on");
+          btnSpeedToggle.classList.add("btn-speed-off");
+          btnSpeedLabel.textContent = "Schnelllauf: Aus";
+        }
+      }
+
+      function updateStatsUI() {
+        const total = state.count1 + state.count2;
+        badgeCount1.textContent = `${state.count1.toLocaleString("de-DE")} Treffer`;
+        badgeCount2.textContent = `${state.count2.toLocaleString("de-DE")} Treffer`;
+        statTotal.textContent = total.toLocaleString("de-DE");
+
+        if (total > 0) {
+          statRatio1.textContent = ((state.count1 / total) * 100).toFixed(1) + " %";
+          statRatio2.textContent = ((state.count2 / total) * 100).toFixed(1) + " %";
+        } else {
+          statRatio1.textContent = "0.0 %";
+          statRatio2.textContent = "0.0 %";
+        }
+      }
+
+      // ------------------------------------------------------------------------
+      // 9. ZEICHNEN DES INTERFEROMETER-AUFBAUS (LINKES HAUPT-CANVAS)
+      // ------------------------------------------------------------------------
+      function renderInterferometerCanvas() {
+        const ctx = setupCtx;
+        const W = setupCanvas.width;
+        const H = setupCanvas.height;
+        const rgb = wavelengthToRGB(state.wavelength);
+
+        const canvasBg = getCssVar("--canvas-bg");
+        const canvasGrid = getCssVar("--canvas-grid");
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = canvasBg;
+        ctx.fillRect(0, 0, W, H);
+
+        // Dezentes Millimeter-/Optik-Raster im Hintergrund
+        ctx.strokeStyle = canvasGrid;
+        ctx.lineWidth = 1;
+        for (let x = 20; x < W; x += 25) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, H);
+          ctx.stroke();
+        }
+        for (let y = 20; y < H; y += 25) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(W, y);
+          ctx.stroke();
+        }
+
+        // 1. OPTISCHE STRAHLENGÄNGE (Hilfslinien)
+        drawOpticalPaths(ctx, rgb);
+
+        // 2. POLFILTER IN DER DRAUFSICHT (IM POLFILTER-MODUS, FARBLOS/NEUTRAL)
+        if (state.appMode === "polfilter") {
+          drawPolarizerInSetup(ctx, GEOM.pfArm1.x, GEOM.pfArm1.y, GEOM.pfArm1.rayAngle, state.polfilters.arm1, "P1");
+          drawPolarizerInSetup(ctx, GEOM.pfArm2.x, GEOM.pfArm2.y, GEOM.pfArm2.rayAngle, state.polfilters.arm2, "P2");
+          drawPolarizerInSetup(ctx, GEOM.pfOut1.x, GEOM.pfOut1.y, GEOM.pfOut1.rayAngle, state.polfilters.out1, "P3");
+        }
+
+        // 3. AKTIVE FLIEGENDE PHOTONEN ALS WELLENPAKETE
+        drawFlyingPhotons(ctx, rgb);
+
+        // 4. OPTISCHE BAUTEILE (Laser, BS1, M1, M2, BS2, Schirm 1 [und Schirm 2 im Modus "Ohne Polfilter"])
+        drawLaserSource(ctx, rgb);
+        drawBeamSplitter(ctx, GEOM.bs1.x, GEOM.bs1.y, "BS1", "Strahlteiler 1", 1.0);
+        drawMirror(ctx, GEOM.m1.x, GEOM.m1.y, "M1", "Spiegel 1", true);
+        drawMirror(ctx, GEOM.m2.x, GEOM.m2.y, "M2", "Spiegel 2", false);
+
+        // BS2 mit sanfter Ein-/Ausfahr-Animation
+        drawBeamSplitter(ctx, GEOM.bs2.x, GEOM.bs2.y, "BS2", "Strahlteiler 2", state.bs2VisualProgress);
+
+        // Schirm 1 (rechts) immer; Schirm 2 (oben) nur im Modus "Ohne Polfilter"
+        drawDetectorScreenInSetup(ctx, GEOM.scr1.x, GEOM.scr1.y, "vertical", "Schirm 1", state.count1, rgb);
+        if (state.appMode === "standard") {
+          drawDetectorScreenInSetup(ctx, GEOM.scr2.x, GEOM.scr2.y, "horizontal", "Schirm 2", state.count2, rgb);
+        }
+
+        // 5. KURZES AUFLEUCHTEN AM ENTSPRECHENDEN SCHIRM IN DER DRAUFSICHT
+        drawFlashesInSetup(ctx);
+      }
+
+      function drawPolarizerInSetup(ctx, x, y, rayAngle, pfState, filterCode) {
+        ctx.save();
+
+        const angleDeg = Math.round(pfState.angleDeg);
+        const angleRad = degToRad(angleDeg);
+        const isOn = pfState.enabled;
+
+        const fillOn = getCssVar("--pf-fill-on");
+        const fillOff = getCssVar("--pf-fill-off");
+        const strokeOn = getCssVar("--pf-stroke-on");
+        const strokeOff = getCssVar("--pf-stroke-off");
+        const axisMain = getCssVar("--pf-axis-main");
+        const axisDim = getCssVar("--pf-axis-dim");
+
+        // Filter-Fassung quer zum Strahl (farblos / neutral)
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rayAngle);
+
+        ctx.fillStyle = isOn ? fillOn : fillOff;
+        ctx.strokeStyle = isOn ? strokeOn : strokeOff;
+        ctx.lineWidth = isOn ? 2.2 : 1.5;
+        if (!isOn) ctx.setLineDash([4, 3]);
+        roundRect(ctx, -4, -20, 8, 40, 3);
+        ctx.fill();
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const axisLen = 15;
+        const dx = Math.cos(angleRad) * axisLen;
+        const dy = -Math.sin(angleRad) * axisLen;
+
+        ctx.strokeStyle = isOn ? axisDim : fillOff;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-11, 0);
+        ctx.lineTo(11, 0);
+        ctx.stroke();
+
+        if (isOn && angleDeg > 0) {
+          ctx.strokeStyle = axisDim;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, 9, 0, -angleRad, true);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = isOn ? axisMain : axisDim;
+        ctx.lineWidth = isOn ? 2.4 : 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-dx, -dy);
+        ctx.lineTo(dx, dy);
+        ctx.stroke();
+
+        ctx.fillStyle = isOn ? axisMain : axisDim;
+        ctx.beginPath();
+        ctx.arc(dx, dy, isOn ? 2.6 : 2, 0, Math.PI * 2);
+        ctx.arc(-dx, -dy, isOn ? 2.6 : 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        // Bei allen drei Polfiltern die Beschriftung oberhalb des Polfilters setzen
+        ctx.fillStyle = isOn ? getCssVar("--canvas-label-sub") : axisDim;
+        ctx.font = isOn ? "bold 11px sans-serif" : "11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(isOn ? `${filterCode}: ${angleDeg}°` : `${filterCode} (aus)`, x, y - 26);
+
+        ctx.restore();
+      }
+
+      function drawFlashesInSetup(ctx) {
+        for (const fl of state.screenFlashes) {
+          if (state.appMode === "polfilter" && fl.screen !== 1) continue;
+
+          const alpha = Math.max(0, fl.life);
+          const radius = 8 + (1 - alpha) * 20;
+
+          let fx, fy;
+          if (fl.screen === 1) {
+            fx = GEOM.scr1.x - 5;
+            fy = GEOM.scr1.y + fl.u * 30;
+          } else {
+            fx = GEOM.scr2.x + fl.u * 30;
+            fy = GEOM.scr2.y + 5;
+          }
+
+          ctx.save();
+          const grad = ctx.createRadialGradient(fx, fy, 1, fx, fy, radius);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+          grad.addColorStop(0.35, `rgba(${fl.rgb.r}, ${fl.rgb.g}, ${fl.rgb.b}, ${alpha * 0.9})`);
+          grad.addColorStop(1, `rgba(${fl.rgb.r}, ${fl.rgb.g}, ${fl.rgb.b}, 0)`);
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(fx, fy, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(fx, fy, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      function drawOpticalPaths(ctx, rgb) {
+        ctx.save();
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([6, 5]);
+        ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.36)`;
+
+        ctx.beginPath();
+        ctx.moveTo(GEOM.laser.x + 42, GEOM.laser.y);
+        ctx.lineTo(GEOM.bs1.x, GEOM.bs1.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(GEOM.bs1.x, GEOM.bs1.y);
+        ctx.lineTo(GEOM.m1.x, GEOM.m1.y);
+        ctx.lineTo(GEOM.bs2.x, GEOM.bs2.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(GEOM.bs1.x, GEOM.bs1.y);
+        ctx.lineTo(GEOM.m2.x, GEOM.m2.y);
+        ctx.lineTo(GEOM.bs2.x, GEOM.bs2.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(GEOM.bs2.x, GEOM.bs2.y);
+        ctx.lineTo(GEOM.scr1.x, GEOM.scr1.y);
+        ctx.stroke();
+
+        if (state.appMode === "standard") {
+          ctx.beginPath();
+          ctx.moveTo(GEOM.bs2.x, GEOM.bs2.y);
+          ctx.lineTo(GEOM.scr2.x, GEOM.scr2.y);
+          ctx.stroke();
+        }
+
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      function drawFlyingPhotons(ctx, rgb) {
+        // Farbe für Überlagerungszustand (auf zwei Wege aufgeteilt): leicht verschobener Akzent + reduzierte Deckkraft
+        const superposRgb = {
+          r: Math.min(255, Math.round(rgb.r * 0.72 + 55)),
+          g: Math.min(255, Math.round(rgb.g * 0.85 + 75)),
+          b: Math.min(255, Math.round(rgb.b * 0.82 + 115))
+        };
+        superposRgb.css = `rgb(${superposRgb.r}, ${superposRgb.g}, ${superposRgb.b})`;
+
+        for (const p of state.photons) {
+          const t = p.progress;
+
+          if (t < 0.20) {
+            // Vor BS1: Einzelner, ungeteilter Zustand (volle Deckkraft & reguläre Laserfarbe)
+            const localT = t / 0.20;
+            const x = lerp(GEOM.laser.x + 45, GEOM.bs1.x, localT);
+            const y = GEOM.laser.y;
+            const maxReach = Math.max(0, GEOM.bs1.x - x);
+            drawWavePacket(ctx, x, y, 0, rgb, 1.0, false, maxReach);
+          } else if (t < 0.78) {
+            // Zwischen BS1 und BS2: In beiden Modi auf zwei Wege aufgeteilt (Überlagerung -> transparenter + Überlagerungsfarbe)
+            const armT = (t - 0.20) / 0.58;
+
+            let upX, upY, upAngle, upReach;
+            if (armT < 0.43) {
+              const s = armT / 0.43;
+              upX = GEOM.bs1.x;
+              upY = lerp(GEOM.bs1.y, GEOM.m1.y, s);
+              upAngle = -Math.PI / 2;
+              upReach = Math.max(0, upY - GEOM.m1.y);
+            } else {
+              const s = (armT - 0.43) / 0.57;
+              upX = lerp(GEOM.m1.x, GEOM.bs2.x, s);
+              upY = GEOM.m1.y;
+              upAngle = 0;
+              upReach = Math.max(0, GEOM.bs2.x - upX);
+            }
+
+            let lowX, lowY, lowAngle, lowReach;
+            if (armT < 0.57) {
+              const s = armT / 0.57;
+              lowX = lerp(GEOM.bs1.x, GEOM.m2.x, s);
+              lowY = GEOM.bs1.y;
+              lowAngle = 0;
+              lowReach = Math.max(0, GEOM.m2.x - lowX);
+            } else {
+              const s = (armT - 0.57) / 0.43;
+              lowX = GEOM.m2.x;
+              lowY = lerp(GEOM.m2.y, GEOM.bs2.y, s);
+              lowAngle = -Math.PI / 2;
+              lowReach = Math.max(0, lowY - GEOM.bs2.y);
+            }
+
+            drawWavePacket(ctx, upX, upY, upAngle, superposRgb, 0.44, true, upReach);
+            drawWavePacket(ctx, lowX, lowY, lowAngle, superposRgb, 0.44, true, lowReach);
+          } else {
+            // Hinter BS2:
+            // - In Modus 1 ("standard"): weiterhin auf zwei Ausgangswege (Schirm 1 & Schirm 2) aufgeteilt -> transparent + Überlagerungsfarbe
+            // - In Modus 2 ("polfilter"): nur noch ein Ausgangspfad (BS2 -> Schirm 1) -> ungeteilt (volle Deckkraft & reguläre Laserfarbe)
+            const outT = (t - 0.78) / 0.22;
+            const x1 = lerp(GEOM.bs2.x, GEOM.scr1.x - 6, outT);
+            const y1 = GEOM.bs2.y;
+            const reach1 = Math.max(0, (GEOM.scr1.x - 6) - x1);
+
+            if (state.appMode === "standard") {
+              drawWavePacket(ctx, x1, y1, 0, superposRgb, 0.44, true, reach1);
+
+              const x2 = GEOM.bs2.x;
+              const y2 = lerp(GEOM.bs2.y, GEOM.scr2.y + 6, outT);
+              const reach2 = Math.max(0, y2 - (GEOM.scr2.y + 6));
+              drawWavePacket(ctx, x2, y2, -Math.PI / 2, superposRgb, 0.44, true, reach2);
+            } else {
+              drawWavePacket(ctx, x1, y1, 0, rgb, 1.0, false, reach1);
+            }
+          }
+        }
+      }
+
+      function drawWavePacket(ctx, x, y, angle, rgb, alpha, isSuperposition = false, maxForwardReach = Infinity) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+
+        const edgeFade = maxForwardReach < 18 ? Math.max(0.15, maxForwardReach / 18) : 1.0;
+        ctx.globalAlpha = alpha * edgeFade;
+
+        const grad = ctx.createRadialGradient(0, 0, 1, 0, 0, 15);
+        grad.addColorStop(0, isSuperposition ? "rgba(255, 255, 255, 0.78)" : "#ffffff");
+        grad.addColorStop(0.35, rgb.css);
+        grad.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0)`);
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        const backLen = 20;
+        const fwdLen = Math.min(20, Math.max(0, maxForwardReach));
+
+        if (fwdLen > 1) {
+          ctx.strokeStyle = rgb.css;
+          ctx.lineWidth = isSuperposition ? 1.65 : 2.0;
+          ctx.beginPath();
+          const k = (2 * Math.PI) / (9 * (state.wavelength / 532));
+          let started = false;
+          for (let dx = -backLen; dx <= fwdLen; dx += 1.5) {
+            const env = Math.exp(-(dx * dx) / 130);
+            const dy = 6.5 * env * Math.sin(k * dx);
+            if (!started) {
+              ctx.moveTo(dx, dy);
+              started = true;
+            } else {
+              ctx.lineTo(dx, dy);
+            }
+          }
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      function drawLaserSource(ctx, rgb) {
+        const { x, y } = GEOM.laser;
+        ctx.save();
+
+        ctx.fillStyle = "#1e293b";
+        roundRect(ctx, x - 62, y - 20, 104, 40, 8);
+        ctx.fill();
+
+        ctx.fillStyle = "#475569";
+        ctx.fillRect(x + 42, y - 9, 8, 18);
+
+        ctx.fillStyle = rgb.css;
+        ctx.beginPath();
+        ctx.arc(x + 28, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Photonen-", x - 14, y - 3);
+        ctx.fillText("quelle", x - 14, y + 10);
+
+        ctx.restore();
+      }
+
+      function drawBeamSplitter(ctx, x, y, code, label, progress) {
+        ctx.save();
+
+        ctx.strokeStyle = getCssVar("--border-color");
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x - 22, y - 22, 44, 44);
+        ctx.setLineDash([]);
+
+        if (progress > 0.02) {
+          const offset = (1 - progress) * 34;
+          ctx.translate(x + offset, y + offset);
+          ctx.globalAlpha = 0.25 + 0.75 * progress;
+
+          ctx.rotate(-Math.PI / 4);
+          ctx.fillStyle = "rgba(56, 189, 248, 0.35)";
+          ctx.strokeStyle = "#0284c7";
+          ctx.lineWidth = 2.5;
+          roundRect(ctx, -24, -4, 48, 8, 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(-22, 0);
+          ctx.lineTo(22, 0);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+
+        ctx.save();
+        ctx.fillStyle = progress > 0.5 ? getCssVar("--canvas-label-dark") : getCssVar("--text-light");
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText(code, x + 26, y + 22);
+        ctx.font = "11px sans-serif";
+        ctx.fillText(progress > 0.5 ? label : `${code} entfernt`, x + 26, y + 36);
+        ctx.restore();
+      }
+
+      function drawMirror(ctx, x, y, code, label, isTopLeft) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-Math.PI / 4);
+
+        ctx.fillStyle = "#64748b";
+        roundRect(ctx, -26, -5, 52, 10, 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#e2e8f0";
+        if (isTopLeft) {
+          ctx.fillRect(-25, 1, 50, 4);
+        } else {
+          ctx.fillRect(-25, -5, 50, 4);
+        }
+
+        ctx.restore();
+
+        ctx.save();
+        ctx.fillStyle = getCssVar("--canvas-label-sub");
+        ctx.font = "bold 12px sans-serif";
+        if (isTopLeft) {
+          ctx.textAlign = "right";
+          ctx.fillText(`${code} (${label})`, x - 24, y - 16);
+        } else {
+          ctx.textAlign = "left";
+          ctx.fillText(`${code} (${label})`, x + 24, y + 26);
+        }
+        ctx.restore();
+      }
+
+      function drawDetectorScreenInSetup(ctx, x, y, orientation, label, count, rgb) {
+        ctx.save();
+        ctx.translate(x, y);
+        const housingColor = getCssVar("--screen-housing");
+
+        if (orientation === "vertical") {
+          ctx.fillStyle = housingColor;
+          roundRect(ctx, -6, -42, 12, 84, 4);
+          ctx.fill();
+
+          ctx.fillStyle = rgb.css;
+          ctx.fillRect(-6, -36, 3, 72);
+
+          ctx.fillStyle = getCssVar("--canvas-label-dark");
+          ctx.font = "bold 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(label, 0, -50);
+          ctx.fillStyle = getCssVar("--canvas-label-muted");
+          ctx.font = "11px monospace";
+          ctx.fillText(`${count}`, 0, 56);
+        } else {
+          ctx.fillStyle = housingColor;
+          roundRect(ctx, -42, -6, 84, 12, 4);
+          ctx.fill();
+
+          ctx.fillStyle = rgb.css;
+          ctx.fillRect(-36, 3, 72, 3);
+
+          ctx.fillStyle = getCssVar("--canvas-label-dark");
+          ctx.font = "bold 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(label, 0, -14);
+          ctx.fillStyle = getCssVar("--canvas-label-muted");
+          ctx.font = "11px monospace";
+          ctx.fillText(`${count}`, 0, 26);
+        }
+
+        ctx.restore();
+      }
+
+      // ------------------------------------------------------------------------
+      // 10. ZEICHNEN DER 2D-DETEKTORSCHIRME & KURZES AUFLEUCHTEN
+      // ------------------------------------------------------------------------
+      function renderDetectorScreens() {
+        const w = screen1Canvas.width;
+        const h = screen1Canvas.height;
+
+        screen1Ctx.fillStyle = "#030712";
+        screen1Ctx.fillRect(0, 0, w, h);
+        screen1Ctx.drawImage(accCanvas1, 0, 0);
+
+        if (state.showTheoryOverlay) {
+          drawTheoryOverlayOnScreen(screen1Ctx, 1);
+        }
+
+        if (state.appMode === "standard") {
+          screen2Ctx.fillStyle = "#030712";
+          screen2Ctx.fillRect(0, 0, w, h);
+          screen2Ctx.drawImage(accCanvas2, 0, 0);
+
+          if (state.showTheoryOverlay) {
+            drawTheoryOverlayOnScreen(screen2Ctx, 2);
+          }
+        }
+
+        drawFlashesOnScreens();
+
+        drawCrosshair(screen1Ctx, w, h);
+        if (state.appMode === "standard") {
+          drawCrosshair(screen2Ctx, w, h);
+        }
+      }
+
+      function drawFlashesOnScreens() {
+        for (const fl of state.screenFlashes) {
+          if (state.appMode === "polfilter" && fl.screen !== 1) continue;
+          const ctx = fl.screen === 1 ? screen1Ctx : screen2Ctx;
+          const alpha = Math.max(0, fl.life);
+          const radius = 5 + (1 - alpha) * 14;
+
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+          const grad = ctx.createRadialGradient(fl.px, fl.py, 0.5, fl.px, fl.py, radius);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+          grad.addColorStop(0.4, `rgba(${fl.rgb.r}, ${fl.rgb.g}, ${fl.rgb.b}, ${alpha * 0.8})`);
+          grad.addColorStop(1, `rgba(${fl.rgb.r}, ${fl.rgb.g}, ${fl.rgb.b}, 0)`);
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(fl.px, fl.py, radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      function drawTheoryOverlayOnScreen(ctx, screenNum) {
+        const w = screen1Canvas.width;
+        const h = screen1Canvas.height;
+        const rgb = wavelengthToRGB(state.wavelength);
+        const step = 2;
+
+        let maxVal = 0.0001;
+        for (let py = 0; py < h; py += 6) {
+          const v = (py / h) * 2 - 1;
+          for (let px = 0; px < w; px += 6) {
+            const u = (px / w) * 2 - 1;
+            const { p1, p2 } = getScreenProbabilities(u, v);
+            const val = screenNum === 1 ? p1 : p2;
+            if (val > maxVal) maxVal = val;
+          }
+        }
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (let py = 0; py < h; py += step) {
+          const v = (py / h) * 2 - 1;
+          for (let px = 0; px < w; px += step) {
+            const u = (px / w) * 2 - 1;
+            const { p1, p2 } = getScreenProbabilities(u, v);
+            const rawIntensity = screenNum === 1 ? p1 : p2;
+            const norm = Math.max(0, Math.min(1, rawIntensity / maxVal));
+            if (norm > 0.015) {
+              const boostR = Math.min(255, Math.round(rgb.r * 1.25 + 35 * norm));
+              const boostG = Math.min(255, Math.round(rgb.g * 1.25 + 35 * norm));
+              const boostB = Math.min(255, Math.round(rgb.b * 1.25 + 35 * norm));
+              const alpha = Math.min(0.92, Math.pow(norm, 0.78) * 0.88);
+              ctx.fillStyle = `rgba(${boostR}, ${boostG}, ${boostB}, ${alpha})`;
+              ctx.fillRect(px, py, step, step);
+            }
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawCrosshair(ctx, w, h) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(w / 2, 0);
+        ctx.lineTo(w / 2, h);
+        ctx.moveTo(0, h / 2);
+        ctx.lineTo(w, h / 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // ------------------------------------------------------------------------
+      // 11. ANIMATIONS- & PHYSIK-SCHRITT (60 FPS LOOP)
+      // ------------------------------------------------------------------------
+      function updateSimulation(dt) {
+        const targetBs2 = state.bs2Installed ? 1.0 : 0.0;
+        state.bs2VisualProgress += (targetBs2 - state.bs2VisualProgress) * Math.min(1, dt * 14);
+
+        for (let i = state.screenFlashes.length - 1; i >= 0; i--) {
+          state.screenFlashes[i].life -= dt * 4.2;
+          if (state.screenFlashes[i].life <= 0) {
+            state.screenFlashes.splice(i, 1);
+          }
+        }
+
+        if (state.continuous) {
+          if (state.fastMode) {
+            fastForwardPhotons(35);
+            state.spawnTimer += dt;
+            if (state.spawnTimer > 0.06) {
+              state.spawnTimer = 0;
+              spawnFlyingPhoton();
+            }
+          } else {
+            state.spawnTimer += dt;
+            if (state.spawnTimer >= 0.28) {
+              state.spawnTimer = 0;
+              spawnFlyingPhoton();
+            }
+          }
+        }
+
+        const speed = state.fastMode ? 1.65 : 0.58;
+        for (let i = state.photons.length - 1; i >= 0; i--) {
+          const p = state.photons[i];
+          const prevProgress = p.progress;
+          p.progress += dt * speed;
+
+          if (p.delayedChoice && !p.delayedSwitched && prevProgress < 0.58 && p.progress >= 0.58) {
+            p.delayedSwitched = true;
+            setPhysicalBs2(p.targetInstalled);
+          }
+
+          if (p.progress >= 1.0) {
+            const outcome = sampleSinglePhotonOutcome(p.armChoice);
+            recordPhotonHit(outcome, true);
+            updateStatsUI();
+            state.photons.splice(i, 1);
+          }
+        }
+      }
+
+      function mainLoop(timestamp) {
+        if (!state.lastTimestamp) state.lastTimestamp = timestamp;
+        const dt = Math.min(0.05, (timestamp - state.lastTimestamp) / 1000);
+        state.lastTimestamp = timestamp;
+
+        updateSimulation(dt);
+        renderInterferometerCanvas();
+        renderDetectorScreens();
+
+        requestAnimationFrame(mainLoop);
+      }
+
+      // ------------------------------------------------------------------------
+      // 12. EVENT-LISTENER & INTERAKTIVITÄT
+      // ------------------------------------------------------------------------
+      btnThemeSwitch.addEventListener("click", () => {
+        setTheme(state.theme === "light" ? "dark" : "light");
+      });
+
+      btnModeStandard.addEventListener("click", () => {
+        setAppMode("standard");
+      });
+
+      btnModePolfilter.addEventListener("click", () => {
+        setAppMode("polfilter");
+      });
+
+      ["arm1", "arm2", "out1"].forEach((key) => {
+        const ctrl = pfControls[key];
+        ctrl.chk.addEventListener("change", (e) => {
+          state.polfilters[key].enabled = e.target.checked;
+          syncPolfilterUI(key);
+        });
+        ctrl.slider.addEventListener("input", (e) => {
+          const val = parseInt(e.target.value, 10);
+          state.polfilters[key].angleDeg = isNaN(val) ? 0 : Math.min(180, Math.max(0, val));
+          syncPolfilterUI(key);
+        });
+      });
+
+      btnToggleBs2Chip.addEventListener("click", () => {
+        if (state.appMode === "polfilter") return;
+        setBs2TargetState(!state.bs2TargetInstalled);
+      });
+
+      btnToggleDelayedChoiceChip.addEventListener("click", () => {
+        setDelayedChoiceEnabled(!state.delayedChoiceEnabled);
+      });
+
+      setupCanvas.addEventListener("click", (ev) => {
+        const rect = setupCanvas.getBoundingClientRect();
+        const scaleX = setupCanvas.width / rect.width;
+        const scaleY = setupCanvas.height / rect.height;
+        const clickX = (ev.clientX - rect.left) * scaleX;
+        const clickY = (ev.clientY - rect.top) * scaleY;
+
+        const distBs2 = Math.hypot(clickX - GEOM.bs2.x, clickY - GEOM.bs2.y);
+        if (state.appMode !== "polfilter" && distBs2 < 52) {
+          setBs2TargetState(!state.bs2TargetInstalled);
+        } else {
+          spawnFlyingPhoton();
+        }
+      });
+
+      btnSinglePhoton.addEventListener("click", () => {
+        spawnFlyingPhoton();
+      });
+
+      btnContinuous.addEventListener("click", () => {
+        setContinuousMode(!state.continuous);
+      });
+
+      btnSpeedToggle.addEventListener("click", () => {
+        setFastMode(!state.fastMode);
+      });
+
+      btnResetScreens.addEventListener("click", () => {
+        resetScreens();
+      });
+
+      sliderWavelength.addEventListener("input", (e) => {
+        state.wavelength = parseInt(e.target.value, 10);
+        const rgb = wavelengthToRGB(state.wavelength);
+        valWavelength.textContent = `${state.wavelength} nm`;
+        valWavelength.style.borderColor = rgb.css;
+      });
+
+      chkTheoryOverlay.addEventListener("change", (e) => {
+        state.showTheoryOverlay = e.target.checked;
+      });
+
+      // ------------------------------------------------------------------------
+      // 13. HILFSFUNKTIONEN
+      // ------------------------------------------------------------------------
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function roundRect(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      // Initialisierung starten (Standardmäßig Dark-Modus)
+      setTheme("dark");
+      syncPolfilterUI("arm1");
+      syncPolfilterUI("arm2");
+      syncPolfilterUI("out1");
+      setBs2TargetState(true);
+      setDelayedChoiceEnabled(false);
+      setFastMode(false);
+      updateStatsUI();
+      requestAnimationFrame(mainLoop);
+    })();
+  </script>
+</body>
+</html>
